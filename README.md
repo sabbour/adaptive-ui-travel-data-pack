@@ -1,5 +1,7 @@
 # @sabbour/adaptive-ui-travel-data-pack
 
+[![CI](https://github.com/sabbour/adaptive-ui-travel-data-pack/actions/workflows/ci.yml/badge.svg)](https://github.com/sabbour/adaptive-ui-travel-data-pack/actions/workflows/ci.yml)
+
 An [Adaptive UI](https://github.com/sabbour/adaptive-ui-framework) component pack for **travel planning data**. Provides weather forecasts, country information, currency conversion, packing checklists, and budget tracking — all using free public APIs.
 
 ## Components
