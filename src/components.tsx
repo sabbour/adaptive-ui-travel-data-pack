@@ -198,8 +198,15 @@ export function CountryInfoCard({ node }: AdaptiveComponentProps<CountryInfoCard
           `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fields=name,capital,region,subregion,population,languages,currencies,timezones,idd,car,flag,flags`
         );
         if (!res.ok) throw new Error(`Country API error: ${res.status}`);
-        const json = await res.json();
-        if (!cancelled) setData(Array.isArray(json) ? json[0] : json);
+        const json = await res.json() as any[];
+        if (!cancelled) {
+          const q = country.toLowerCase();
+          const match = Array.isArray(json)
+            ? json.find((c: any) => c.name?.common?.toLowerCase() === q || c.name?.official?.toLowerCase() === q)
+              ?? json.slice().sort((a: any, b: any) => (a.name?.common?.length ?? 0) - (b.name?.common?.length ?? 0))[0]
+            : json;
+          setData(match);
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to fetch country info');
       } finally {

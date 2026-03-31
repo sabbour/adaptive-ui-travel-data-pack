@@ -96,10 +96,26 @@ function slimWeather(data: any): any {
   } catch { return data; }
 }
 
+/** Pick the best country match from an array of results */
+function bestCountryMatch(data: any, query?: string): any {
+  if (!Array.isArray(data) || data.length <= 1) return Array.isArray(data) ? data[0] : data;
+  if (!query) return data[0];
+  const q = query.toLowerCase();
+  // prefer exact common-name or official-name match
+  const exact = data.find((c: any) =>
+    c.name?.common?.toLowerCase() === q || c.name?.official?.toLowerCase() === q
+  );
+  if (exact) return exact;
+  // fall back to shortest common name (main country, not territory)
+  return data.slice().sort((a: any, b: any) =>
+    (a.name?.common?.length ?? 0) - (b.name?.common?.length ?? 0)
+  )[0];
+}
+
 /** Slim down country response */
-function slimCountry(data: any): any {
+function slimCountry(data: any, query?: string): any {
   try {
-    const c = Array.isArray(data) ? data[0] : data;
+    const c = bestCountryMatch(data, query);
     return {
       name: c.name?.common,
       officialName: c.name?.official,
@@ -234,7 +250,7 @@ export function createTravelDataPack(): ComponentPack {
             const res = await trackedFetch(`https://restcountries.com/v3.1/name/${country}?fields=name,capital,region,subregion,population,languages,currencies,timezones,idd,car,flag`);
             if (!res.ok) return `Country API error: ${res.status}. Check the country name.`;
             const data = await res.json();
-            return JSON.stringify(slimCountry(data), null, 2);
+            return JSON.stringify(slimCountry(data, String(args.country)), null, 2);
           } catch (err) {
             return `Failed to fetch country info: ${err instanceof Error ? err.message : String(err)}`;
           }
